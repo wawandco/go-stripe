@@ -68,6 +68,9 @@ func New() Server {
 
 	r.HandleFunc("POST /create-payment-intent/{$}", home.HandleCreatePaymentIntent)
 
+	r.HandleFunc("POST /create-charge-app-fee/{$}", home.PayChargeWithAppFee)
+	r.HandleFunc("GET /back-ex-4/{$}", home.BackFour)
+
 	r.HandleFunc("POST /create-payment-intent-app-fee/{$}", home.HandleCreatePaymentIntentAppFee)
 
 	// Mounting the assets manager at the end of the routes

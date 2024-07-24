@@ -166,7 +166,7 @@ async function handleSubmitAppFee(e) {
     elements,
     confirmParams: {
       // Make sure to change this to your payment completion page
-      return_url: "http://localhost:3000#page-4",
+      return_url: "http://localhost:3000#page-5",
     },
   });
 
