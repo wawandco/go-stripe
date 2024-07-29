@@ -18,13 +18,13 @@ func PayIntentConfirm(w http.ResponseWriter, r *http.Request) {
 
 	info := PaymentInfo{
 		Amount:     amount,
-		CardHolder: r.FormValue("cardholder"),
+		CardHolder: "Javier Hernandez",
 		CardNumber: r.FormValue("cnumber"),
 		ExpMonth:   r.FormValue("month"),
 		ExpYear:    r.FormValue("year"),
 		CVC:        r.FormValue("cvc"),
 
-		Email: r.FormValue("email"),
+		Email: "javi@example.com",
 
 		BillingLine:    "Theo Parker 123 Pike ST",
 		BillingCity:    "Seatle",
@@ -33,8 +33,11 @@ func PayIntentConfirm(w http.ResponseWriter, r *http.Request) {
 		BillingCountry: "United States",
 	}
 
-	pi, _ := PaymentIntent(info)
-	success, err := ConfirmPaymentIntent(pi)
+	// pi, _ := PaymentIntent(info)
+	// success, err := ConfirmPaymentIntent(pi)
+
+	pi, err := DirectPaymentIntent(info)
+	success := pi != ""
 
 	if err != nil {
 		stripeError := StripeError{}
@@ -75,7 +78,7 @@ func PaymentIntent(info PaymentInfo) (string, error) {
 		},
 		Confirm:       stripe.Bool(false), // To create the charge
 		PaymentMethod: stripe.String("pm_card_visa"),
-		Description:   stripe.String("One-time payment example, payment intent not confirmed"),
+		Description:   stripe.String("One-time payment example, payment intent confirmed"),
 		Metadata:      map[string]string{"Name": "Gopher Toy", "Description": "Toy"},
 	}
 
@@ -100,9 +103,45 @@ func ConfirmPaymentIntent(piID string) (bool, error) {
 
 	_, err := paymentintent.Confirm(piID, params)
 	if err != nil {
-		log.Printf("pi.New: %v", err)
+		log.Printf("pic.New: %v", err)
 		return false, err
 	}
 
 	return true, nil
+}
+
+func DirectPaymentIntent(info PaymentInfo) (string, error) {
+	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+
+	// Create a PaymentIntent with amount and currency
+	params := &stripe.PaymentIntentParams{
+		Amount:   stripe.Int64(int64(info.Amount * 100)),
+		Currency: stripe.String(string(stripe.CurrencyUSD)),
+		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        stripe.Bool(true),
+			AllowRedirects: stripe.String("never"),
+		},
+		Confirm:       stripe.Bool(true), // To create the charge
+		PaymentMethod: stripe.String("pm_card_visa"),
+		Description:   stripe.String("One-time payment example, direct payment intent confirmed"),
+		Metadata:      map[string]string{"Name": "Gopher Toy", "Description": "Toy"},
+	}
+
+	c, err := CreateCustomer(info)
+	if err != nil {
+		log.Printf("c.New: %v", err)
+		return "", err
+	}
+	params.Customer = stripe.String(c)
+
+	pi, err := paymentintent.New(params)
+	log.Printf("pi.New: %v", pi.ClientSecret)
+
+	if err != nil {
+		log.Printf("pi.New: %v", err)
+		return "", err
+	}
+
+	return pi.ID, nil
 }

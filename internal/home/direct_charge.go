@@ -75,6 +75,32 @@ func PaymentCharge(info PaymentInfo) (bool, error) {
 		Metadata:    map[string]string{"Name": "Gopher Toy", "Description": "Toy"},
 	}
 
+	/*
+		//This is the older way to set credit card info to a charge.
+		t := &stripe.TokenParams{
+			Card: &stripe.CardParams{
+				Name:           stripe.String(info.CardHolder),
+				Number:         stripe.String(info.CardNumber),
+				ExpMonth:       stripe.String(info.ExpMonth),
+				ExpYear:        stripe.String(info.ExpYear),
+				CVC:            stripe.String(info.CVC),
+				AddressLine1:   stripe.String(info.BillingLine),
+				AddressCity:    stripe.String(info.BillingCity),
+				AddressState:   stripe.String(info.BillingState),
+				AddressZip:     stripe.String(info.BillingZip),
+				AddressCountry: stripe.String(info.BillingCountry),
+			},
+		}
+
+		nt, err := token.New(t)
+		if err != nil {
+			fmt.Printf("Error creating token for charge: %v", err)
+			return false, err
+		}
+
+		chargeParams.SetSource(nt.ID)
+	*/
+
 	chargeParams.SetSource("tok_visa")
 
 	ch, err := charge.New(chargeParams)
