@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/leapkit/leapkit/core/render"
@@ -66,7 +67,7 @@ func BackTwo(w http.ResponseWriter, r *http.Request) {
 }
 
 func PaymentIntent(info PaymentInfo) (string, error) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
 	// Create a PaymentIntent with amount and currency
 	params := &stripe.PaymentIntentParams{
@@ -94,7 +95,7 @@ func PaymentIntent(info PaymentInfo) (string, error) {
 }
 
 func ConfirmPaymentIntent(piID string) (bool, error) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
 	params := &stripe.PaymentIntentConfirmParams{
 		PaymentMethod: stripe.String("pm_card_visa"),
@@ -111,7 +112,7 @@ func ConfirmPaymentIntent(piID string) (bool, error) {
 }
 
 func DirectPaymentIntent(info PaymentInfo) (string, error) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
 	// Create a PaymentIntent with amount and currency
 	params := &stripe.PaymentIntentParams{

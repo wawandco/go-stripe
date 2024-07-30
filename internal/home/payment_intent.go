@@ -6,13 +6,14 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/stripe/stripe-go/v79"
 	"github.com/stripe/stripe-go/v79/paymentintent"
 )
 
 func HandleCreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -49,7 +50,7 @@ func HandleCreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleCreatePaymentIntentAppFee(w http.ResponseWriter, r *http.Request) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return

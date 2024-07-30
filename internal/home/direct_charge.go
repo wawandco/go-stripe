@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/leapkit/leapkit/core/render"
@@ -62,7 +63,7 @@ func BackOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func PaymentCharge(info PaymentInfo) (bool, error) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
 	cents := 100
 	amount := info.Amount * cents
@@ -156,7 +157,7 @@ func PayChargeWithAppFee(w http.ResponseWriter, r *http.Request) {
 }
 
 func PaymentChargeAPPFee(info PaymentInfo) (bool, error) {
-	stripe.Key = "sk_test_51IIiV0C5e5WNMZdtXdXmjSkCoEzg1CrCZlweUxjQVGGGDHlGENmCUg1NDhsTgGvgKojTyjVpZXQ2ea6Kk4CCA1to00XQkiBGLq"
+	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
 	cents := 100
 	amount := info.Amount * cents
