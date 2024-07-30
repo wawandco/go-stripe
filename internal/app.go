@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"os"
 
+	"stripe-cop/internal/charge"
+	"stripe-cop/internal/element"
 	"stripe-cop/internal/home"
+	"stripe-cop/internal/paymentintent"
 	"stripe-cop/public"
 
 	"github.com/leapkit/leapkit/core/assets"
@@ -60,18 +63,18 @@ func New() Server {
 
 	r.HandleFunc("GET /{$}", home.Index)
 
-	r.HandleFunc("POST /create-charge/{$}", home.PayChargeOne)
-	r.HandleFunc("GET /back-ex-1/{$}", home.BackOne)
+	r.HandleFunc("POST /create-charge/{$}", charge.PayChargeOne)
+	r.HandleFunc("GET /back-ex-1/{$}", charge.BackOne)
 
-	r.HandleFunc("POST /create-payment-confirmed/{$}", home.PayIntentConfirm)
-	r.HandleFunc("GET /back-ex-2/{$}", home.BackTwo)
+	r.HandleFunc("POST /create-payment-confirmed/{$}", paymentintent.PayIntentConfirm)
+	r.HandleFunc("GET /back-ex-2/{$}", paymentintent.BackTwo)
 
-	r.HandleFunc("POST /create-payment-intent/{$}", home.HandleCreatePaymentIntent)
+	r.HandleFunc("POST /create-payment-intent/{$}", element.HandleCreatePaymentIntent)
 
-	r.HandleFunc("POST /create-charge-app-fee/{$}", home.PayChargeWithAppFee)
-	r.HandleFunc("GET /back-ex-4/{$}", home.BackFour)
+	r.HandleFunc("POST /create-charge-app-fee/{$}", charge.PayChargeWithAppFee)
+	r.HandleFunc("GET /back-ex-4/{$}", charge.BackFour)
 
-	r.HandleFunc("POST /create-payment-intent-app-fee/{$}", home.HandleCreatePaymentIntentAppFee)
+	r.HandleFunc("POST /create-payment-intent-app-fee/{$}", element.HandleCreatePaymentIntentAppFee)
 
 	// Mounting the assets manager at the end of the routes
 	// so that it can serve the public assets.
