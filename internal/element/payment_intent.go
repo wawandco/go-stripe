@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"stripe-cop/internal/customer"
+	"stripe-cop/internal/model"
 
 	"github.com/stripe/stripe-go/v79"
 	"github.com/stripe/stripe-go/v79/paymentintent"
@@ -32,6 +34,25 @@ func HandleCreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 		},
 		Description: stripe.String("One-time payment example, using Stripe element"),
 	}
+
+	info := model.PaymentInfo{
+		Amount:     amount,
+		CardHolder: "Edwin Polo",
+		Email:      "edwin@example.com",
+
+		BillingLine:    "Theo Parker 123 Pike ST",
+		BillingCity:    "Seatle",
+		BillingState:   "WA",
+		BillingZip:     "98122",
+		BillingCountry: "United States",
+	}
+	c, err := customer.CreateCustomer(info)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("pi.New: %v", err)
+		return
+	}
+	params.Customer = stripe.String(c)
 
 	pi, err := paymentintent.New(params)
 	log.Printf("pi.New: %v", pi.ClientSecret)
