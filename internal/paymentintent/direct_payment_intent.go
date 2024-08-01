@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"stripe-cop/internal/customer"
 	"stripe-cop/internal/model"
 
@@ -17,10 +16,8 @@ import (
 func PayIntentConfirm(w http.ResponseWriter, r *http.Request) {
 	rw := render.FromCtx(r.Context())
 
-	amount, _ := strconv.Atoi(r.FormValue("amount"))
-
 	info := model.PaymentInfo{
-		Amount:     amount,
+		Amount:     r.FormValue("amount"),
 		CardHolder: "Javier Hernandez",
 		CardNumber: r.FormValue("cnumber"),
 		ExpMonth:   r.FormValue("month"),
@@ -73,7 +70,7 @@ func PaymentIntent(info model.PaymentInfo) (string, error) {
 
 	// Create a PaymentIntent with amount and currency
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(int64(info.Amount * 100)),
+		Amount:   stripe.Int64(int64(info.AmountInCents())),
 		Currency: stripe.String(string(stripe.CurrencyUSD)),
 		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
 		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
@@ -118,7 +115,7 @@ func DirectPaymentIntent(info model.PaymentInfo) (string, error) {
 
 	// Create a PaymentIntent with amount and currency
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(int64(info.Amount * 100)),
+		Amount:   stripe.Int64(int64(info.AmountInCents())),
 		Currency: stripe.String(string(stripe.CurrencyUSD)),
 		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
 		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{

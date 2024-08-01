@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"stripe-cop/internal/model"
 
 	"github.com/leapkit/leapkit/core/render"
@@ -16,10 +15,8 @@ import (
 func PayChargeOne(w http.ResponseWriter, r *http.Request) {
 	rw := render.FromCtx(r.Context())
 
-	amount, _ := strconv.Atoi(r.FormValue("amount"))
-
 	info := model.PaymentInfo{
-		Amount:     amount,
+		Amount:     r.FormValue("amount"),
 		CardHolder: r.FormValue("cardholder"),
 		CardNumber: r.FormValue("cnumber"),
 		ExpMonth:   r.FormValue("month"),
@@ -66,11 +63,8 @@ func BackOne(w http.ResponseWriter, r *http.Request) {
 func PaymentCharge(info model.PaymentInfo) (bool, error) {
 	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
-	cents := 100
-	amount := info.Amount * cents
-
 	chargeParams := &stripe.ChargeParams{
-		Amount:      stripe.Int64(int64(amount)),
+		Amount:      stripe.Int64(int64(info.AmountInCents())),
 		Currency:    stripe.String(string(stripe.CurrencyUSD)),
 		Description: stripe.String("One-time payment example, direct charge"),
 		Capture:     stripe.Bool(true),
@@ -118,10 +112,8 @@ func PaymentCharge(info model.PaymentInfo) (bool, error) {
 func PayChargeWithAppFee(w http.ResponseWriter, r *http.Request) {
 	rw := render.FromCtx(r.Context())
 
-	amount, _ := strconv.Atoi(r.FormValue("amount"))
-
 	info := model.PaymentInfo{
-		Amount:     amount,
+		Amount:     r.FormValue("amount"),
 		CardHolder: r.FormValue("cardholder"),
 		CardNumber: r.FormValue("cnumber"),
 		ExpMonth:   r.FormValue("month"),
@@ -160,16 +152,13 @@ func PayChargeWithAppFee(w http.ResponseWriter, r *http.Request) {
 func PaymentChargeAPPFee(info model.PaymentInfo) (bool, error) {
 	stripe.Key = os.Getenv("STRIPE_SC_KEY")
 
-	cents := 100
-	amount := info.Amount * cents
-
 	chargeParams := &stripe.ChargeParams{
-		Amount:               stripe.Int64(int64(amount)),
+		Amount:               stripe.Int64(int64(info.AmountInCents())),
 		Currency:             stripe.String(string(stripe.CurrencyUSD)),
 		Description:          stripe.String("One-time payment example, direct charge to connect account with app fee"),
 		Capture:              stripe.Bool(true),
 		Metadata:             map[string]string{"Name": "Gopher Toy", "Description": "Toy"},
-		ApplicationFeeAmount: stripe.Int64(20 * 100),
+		ApplicationFeeAmount: stripe.Int64(10 * 100),
 	}
 
 	chargeParams.SetSource("tok_visa")

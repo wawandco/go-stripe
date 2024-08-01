@@ -21,22 +21,8 @@ func HandleCreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cents := 100
-	amount := 100 * cents
-
-	// Create a PaymentIntent with amount and currency
-	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(int64(amount)),
-		Currency: stripe.String(string(stripe.CurrencyUSD)),
-		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled: stripe.Bool(true),
-		},
-		Description: stripe.String("One-time payment example, using Stripe element"),
-	}
-
 	info := model.PaymentInfo{
-		Amount:     amount,
+		Amount:     "109.99",
 		CardHolder: "Edwin Polo",
 		Email:      "edwin@example.com",
 
@@ -46,6 +32,18 @@ func HandleCreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
 		BillingZip:     "98122",
 		BillingCountry: "United States",
 	}
+
+	// Create a PaymentIntent with amount and currency
+	params := &stripe.PaymentIntentParams{
+		Amount:   stripe.Int64(int64(info.AmountInCents())),
+		Currency: stripe.String(string(stripe.CurrencyUSD)),
+		// In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled: stripe.Bool(true),
+		},
+		Description: stripe.String("One-time payment example, using Stripe element"),
+	}
+
 	c, err := customer.CreateCustomer(info)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
